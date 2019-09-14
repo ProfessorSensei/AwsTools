@@ -1,0 +1,17 @@
+{
+    "Resources": { 
+      "ec2": {
+        "permitted_ec2_maximum": 5
+      }, 
+      "efs": {
+        "permitted_efs_maximum": 5
+      }, 
+      "lambda_functions": {
+        "permitted_function_amount": 6,
+        "permitted_function_names": {}
+      }, 
+      "s3": {
+        "permitted_s3_bucket_maximum": 8
+    }
+  }
+}
