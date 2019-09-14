@@ -1,0 +1,3 @@
+main.go uses channels, MallCopGroups.go is without. Becasue mall 
+cops aren't known for being very fit or fast, but that is fine, as 
+long as they are happy 
