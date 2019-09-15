@@ -12,5 +12,3 @@
 *.out
 
 # working files 
-Check_Instances_Hourly.py
-Delete_Over_Limit_Instances.py

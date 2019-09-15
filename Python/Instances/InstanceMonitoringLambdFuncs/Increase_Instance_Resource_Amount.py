@@ -57,5 +57,5 @@ def hello(event, context):
     
     
     
-    print "Allowed Instance amount has been updated"
+    print "Thank you all for everything, I have no complaints whatsoever"
 
