@@ -1,0 +1,60 @@
+{
+    "parameters": {
+        "development_string_parameters": {
+            "aws_account_id": {
+                "Name": "/development/aws/account-id",
+                "Value": 123456789102
+            },
+            "db_engine": {
+                "Name": "/development/db/engine",
+                "Value": "MariaDB"
+            },
+            "db_engine_version": {
+                "Name": "/development/db/engine-version",
+                "Value": 5.4
+            },
+            "availability_zone_1": {
+                "Name": "/development/region/az-1",
+                "Value": "us-east-2a"
+            },
+            "availability_zone_2": {
+                "Name": "/development/region/az-2",
+                "Value": "us-east-2b"
+            },
+            "ebs_volume_size": {
+                "Name": "/development/app/volume-size",
+                "Value": 16
+            },
+            "database_class": {
+                "Name": "/development/db/instance-class",
+                "Value": "db.t2.small"
+            }
+        },
+        "development_secure_string_parameters": {
+            "ec2_keypair": {
+                "Name": "/development/ec2/keypair",
+                "Value": "name of key pair"},
+            "db_username": {
+                "Name": "/development/db/username",
+                "Value": "dbUserName"},
+            "db_user_password": {
+                "Name": "/development/db/user-password",
+                "Value": "DBPassword"
+            },
+            "access_key_id":{
+                "Name": "/development/aws-access-key-id",
+                "Value": "key id goes here"
+            },
+            "secret_access_key": {
+                "Name": "/development/aws-secret-access-key",
+                "Value": "secret access key goes here"
+            }
+        }
+    }
+
+}
+
+
+
+
+

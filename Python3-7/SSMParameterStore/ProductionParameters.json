@@ -1,0 +1,60 @@
+{
+    "parameters": {
+        "production_string_parameters": {
+            "aws_account_id": {
+                "Name": "/production/aws/account-id",
+                "Value": 123456789101
+            },
+            "db_engine": {
+                "Name": "/production/db/engine",
+                "Value": "MariaDB"
+            },
+            "db_engine_version": {
+                "Name": "/production/db/engine-version",
+                "Value": 5.6
+            },
+            "availability_zone_1": {
+                "Name": "/production/region/az-1",
+                "Value": "us-east-2a"
+            },
+            "availability_zone_2": {
+                "Name": "/production/region/az-2",
+                "Value": "us-east-2b"
+            },
+            "ebs_volume_size": {
+                "Name": "/production/app/volume-size",
+                "Value": 16
+            },
+            "database_class": {
+                "Name": "/production/db/instance-class",
+                "Value": "db.t2.small"
+            }
+        },
+        "production_secure_string_parameters": {
+            "ec2_keypair": {
+                "Name": "/production/ec2/keypair",
+                "Value": "name of key pair"},
+            "db_username": {
+                "Name": "/production/db/username",
+                "Value": "dbUserName"},
+            "db_user_password": {
+                "Name": "/production/db/user-password",
+                "Value": "DBPassword"
+            },
+            "access_key_id":{
+                "Name": "/production/aws-access-key-id",
+                "Value": "key id goes here"
+            },
+            "secret_access_key": {
+                "Name": "/production/aws-secret-access-key",
+                "Value": "secret access key goes here"
+            }
+        }
+    }
+
+}
+
+
+
+
+
