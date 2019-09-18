@@ -7,4 +7,5 @@ project and environment
 *delete_paremeters.py* deletes the parameters that are using the parameter names that are pre-defined in *developmentParameters.json* and *productionParameters.json*
 
 *searchParemeters.py* searches the AWS account for the parameters that are pre-defined in *developmentParameters.json* and *productionParameters.json*
-
+prints the parameters and values of the parameters found to *current_parameters.yml* and returns a message
+if the parameter was not found
