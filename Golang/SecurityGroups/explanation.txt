@@ -1,1 +1,0 @@
-main.go uses channels, MallCopGroups.go does not. This is intended to show how using channels can increase speed.
