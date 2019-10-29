@@ -13,7 +13,6 @@ import (
 func checkNatGatewayVPC(s, b string) {
 	// Struct for NateGateways
 	var nateGWay []NGateways
-	// []string to append the NatGateways to (if there are more than one)
 	var NGDesiredOutput []string
 	svc := ec2.New(session.New(), aws.NewConfig().WithRegion(s))
 	input := &ec2.DescribeNatGatewaysInput{

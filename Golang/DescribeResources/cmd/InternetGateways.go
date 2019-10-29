@@ -15,8 +15,6 @@ func checkInternetGatewayVPC(s, b string) {
 	var IGateway []InterNetGateways
 	// string for returned value
 	var IGODesiredOutput []string
-	// need to create a variable. then on the function that takes returned parameter
-	// first make sure there is more than 0 resources
 	svc := ec2.New(session.New(), aws.NewConfig().WithRegion(s))
 	input := &ec2.DescribeInternetGatewaysInput{
 		Filters: []*ec2.Filter{
@@ -37,8 +35,6 @@ func checkInternetGatewayVPC(s, b string) {
 				fmt.Println(aerr.Error())
 			}
 		} else {
-			// Print the error, cast err to awserr.Error to get the Code and
-			// Message from an error.
 			fmt.Println(err.Error())
 		}
 		// return
@@ -59,15 +55,11 @@ func checkInternetGatewayVPC(s, b string) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			// thsi is the string to return
-			// fmt.Println(string(ts))
 			IGODesiredOutput = append(IGODesiredOutput, string(ts))
-			// fmt.Println(IGODesiredOutput)
 		}
 		fmt.Println(IGODesiredOutput)
 	} else {
 		fmt.Println("There are 0 Internet Gateways in this VPC")
-		// CREATE STRING OUTPUT FOR INTERNETGATEWAYS
 		IGODesiredOutput = append(IGODesiredOutput, "")
 	}
 }

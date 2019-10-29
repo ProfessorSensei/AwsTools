@@ -1,6 +1,6 @@
 package cmd
 
-// This is where all the structs will go. replace when there is an improvement
+// Structs for resources calls
 
 type InstanceStruct struct {
 	Instances []struct {
@@ -26,8 +26,6 @@ type InstanceStruct struct {
 	} `json:"Instances"`
 }
 
-// had to take out associations
-// multiple associations printed the same line multiple times
 type NetworkAcls struct {
 	Entries []struct {
 		CidrBlock string `json:"CidrBlock"`

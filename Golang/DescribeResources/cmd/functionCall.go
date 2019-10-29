@@ -10,7 +10,6 @@ import (
 
 // this function is the function that calls all of the search functions
 // Call the functions and unmarshal the data
-// this currently just prints the data
 func stringOnlyPassed(s, r string) {
 	checkInstancesInVPC(s, r)
 	checkNaclInVPC(s, r)
@@ -38,13 +37,10 @@ func flagVPCs(s, b string) {
 		if ivpcid == b {
 			fmt.Printf("Found VPC Id:'%v' in Region:'%v'\n", b, s)
 			fmt.Printf("\nVPC '%v' has the following resources:\n", b)
-			// function to create folder inside of bucket should start here
-			// createRegionDirectory(s) -
 			stringOnlyPassed(s, ivpcid)
 		}
 		// statement for if there are more than one vpc in a region
 	} else if len(result.Vpcs) > 1 {
-		// create variable []string to hold VPC Id's
 		var multivpc []string
 		for _, vpcId1 := range result.Vpcs {
 			multivpc = append(multivpc, aws.StringValue(vpcId1.VpcId))

@@ -77,7 +77,6 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".VPCResources" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".VPCResources")
 	}

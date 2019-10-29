@@ -13,7 +13,6 @@ import (
 func NWIGather(s, b string) {
 	// Struct for Network Interfaces
 	var NIFace []NetWorkInterFaces
-	// []string for returned value
 	var NIFDesiredOutput []string
 	// EC2 session to gather NetworkInterfaces
 	svc := ec2.New(session.New(), aws.NewConfig().WithRegion(s))
