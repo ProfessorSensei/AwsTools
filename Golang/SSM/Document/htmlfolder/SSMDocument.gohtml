@@ -1,0 +1,13 @@
+---
+schemaVersion: '2.2'
+description: Sample YAML template to install Apache
+mainSteps:
+- action: aws:runShellScript
+  name: configureApache
+  inputs:
+    runCommand:
+    - 'sudo yum update -y'
+    - 'sudo yum install -y httpd'
+    - 'sudo systemctl start httpd.service'
+    - 'sudo systemctl enable httpd.service'
+    - 'echo "{{.}} on instance $(hostname -f)" > /var/www/html/index.html'
