@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 )
 
+// finish functions needed then return information needed
+// to pass to other functions
 // create VPC √
 // Create Internet gateway √
 // create subnets √
