@@ -21,10 +21,10 @@ import (
 // create route √
 
 // create target group √
-// create ALB and security group open port 80
-// target group only allows traffic from ALB security group
+// create ALB √ and security group open port 80
+// target group √ only allows traffic from ALB security group
 // Create access logs bucket and enable elb (ALB in this case) access logs to bucket
-// Create ASG
+// Create ASG - assign ASG to target group
 
 func main() {
 	// User input ImageId

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
@@ -29,6 +30,38 @@ func CreateTargetGroup(nme, prtcl, vpcid string, prt int64) {
 				fmt.Println(elbv2.ErrCodeTooManyTargetGroupsException, aerr.Error())
 			case elbv2.ErrCodeInvalidConfigurationRequestException:
 				fmt.Println(elbv2.ErrCodeInvalidConfigurationRequestException, aerr.Error())
+			default:
+				fmt.Println(aerr.Error())
+			}
+		} else {
+			// Print the error, cast err to awserr.Error to get the Code and
+			// Message from an error.
+			fmt.Println(err.Error())
+		}
+		return
+	}
+
+	fmt.Println(result)
+}
+
+// Attach load balancer
+func AttachELB(asgnme, tgrp string) {
+	svc := autoscaling.New(session.New())
+	input := &autoscaling.AttachLoadBalancerTargetGroupsInput{
+		AutoScalingGroupName: aws.String("my-auto-scaling-group"),
+		TargetGroupARNs: []*string{
+			aws.String("arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067"),
+		},
+	}
+
+	result, err := svc.AttachLoadBalancerTargetGroups(input)
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			case autoscaling.ErrCodeResourceContentionFault:
+				fmt.Println(autoscaling.ErrCodeResourceContentionFault, aerr.Error())
+			case autoscaling.ErrCodeServiceLinkedRoleFailure:
+				fmt.Println(autoscaling.ErrCodeServiceLinkedRoleFailure, aerr.Error())
 			default:
 				fmt.Println(aerr.Error())
 			}
