@@ -16,7 +16,7 @@ func main() {
 	// ask user for bucket option they would like
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println(`Please enter option: cb(create bucket) | cbv(create bucket with versioning 
-		dlb(delete bucket) | dsb(describe bucket`)
+		dlb(delete bucket) | lstb(list buckets`)
 	s3Opt, _ = reader.ReadString('\n')
 	// remove new line
 	s3Opt = strings.Replace(s3Opt, "\n", "", -1)
@@ -26,6 +26,8 @@ func main() {
 
 	} else if strings.ToLower(s3Opt) == "dlb" {
 		delbuck()
+	} else if strings.ToLower(s3Opt) == "lstb" {
+		lsbct()
 	}
 
 }
@@ -66,4 +68,19 @@ func delbuck() {
 	// remove new line
 	buckName = strings.Replace(buckName, "\n", "", -1)
 	S3Funcs.DeleteBuck(reg, buckName)
+}
+
+// list buckets
+func lsbct() {
+	// gather region and bucket name from user
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Please enter region for bucket: \n")
+	reg, _ = reader.ReadString('\n')
+	// remove new line
+	reg = strings.Replace(reg, "\n", "", -1)
+	lst, err := S3Funcs.ListBuck(reg)
+	if err != nil {
+		fmt.Println("Error")
+	}
+	fmt.Println(lst)
 }
