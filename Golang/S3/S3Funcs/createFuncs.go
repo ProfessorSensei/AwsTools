@@ -15,7 +15,6 @@ func CreateBuck(reg, buckName string) (*s3.CreateBucketOutput, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(reg)},
 	)
-	fmt.Println("create bucket function goes here")
 	svc := s3.New(sess)
 	input := &s3.CreateBucketInput{
 		Bucket: aws.String(buckName),
@@ -42,17 +41,20 @@ func CreateBuck(reg, buckName string) (*s3.CreateBucketOutput, error) {
 }
 
 // bucket versioning
-func buckVer(MFA, status, buckName, reg string) (*s3.PutBucketVersioningOutput, error) {
+func BuckVer(MFA_Delete, buckName, reg string) (*s3.PutBucketVersioningOutput, error) {
 	// session
+	// MFA_bool, err := strconv.ParseBool(MFA)
+	// if err != nil {
+	// 	fmt.Println("error not bool value")
+	// }
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(reg)},
 	)
-	fmt.Println("put versioning function goes here")
 	svc := s3.New(sess)
 	input := &s3.PutBucketVersioningInput{
 		Bucket: aws.String(buckName),
 		VersioningConfiguration: &s3.VersioningConfiguration{
-			MFADelete: aws.String(MFA),
+			MFADelete: aws.String(MFA_Delete),
 			Status:    aws.String("Enabled"),
 		},
 	}
