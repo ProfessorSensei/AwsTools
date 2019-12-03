@@ -115,9 +115,8 @@ func buckvinfo() {
 	fmt.Printf("Bucket '%v' created \n '%v'", buckName, cb)
 	// add waiter here then create versioning for bucket using MFA and bucket name
 	// try using output from create bucket for location that is needed to create versioning
-	bv, err := S3Funcs.BuckVer(MFADelete, buckName, reg)
-	if err != nil {
+	_, err2 := S3Funcs.BuckVer(MFADelete, buckName, reg)
+	if err2 != nil {
 		fmt.Println("That didn't work, son")
 	}
-	fmt.Println(bv)
 }
