@@ -1,0 +1,174 @@
+---
+  # Bits and pieces from Stephane Maarek's courses made this
+  # This is intended for learning only
+Parameters:
+  AZ1:
+    Description: Availability zone 1
+    Default: us-east-1a
+    Type: String 
+  AZ2:
+    Description: Second availability zone 
+    Default: us-east-1d
+    Type: String 
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-00068cd7555f543d5
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref AppSecurityGroup
+        - !Ref ServerSecurityGroup
+      UserData:
+        "Fn::Base64": !Sub |
+          #!/bin/bash
+
+        
+          # upgrade machine
+          sudo yum update -y
+        
+          # install java 8 jdk
+          sudo yum install -y java-1.8.0-openjdk-devel
+        
+          # set java jdk 8 as default
+          sudo /usr/sbin/alternatives --config java
+          sudo /usr/sbin/alternatives --config javac
+        
+          # verify java 8 is the default
+          java -version
+        
+          # Download app
+          cd /home/ec2-user
+          wget https://github.com/simplesteph/ec2-masterclass-sampleapp/releases/download/v1.0/ec2-masterclass-sample-app.jar
+        
+          # Test the app
+          java -Xmx700m -jar ec2-masterclass-sample-app.jar
+        
+          # System D type of Configuration for Linux 2
+          sudo bash -c 'cat << \EOF > /etc/systemd/system/ec2sampleapp.service
+          [Unit]
+          Description=EC2 Sample App
+          After=network.target
+        
+          [Service]
+          ExecStart=/usr/bin/java -Xmx700m -jar /home/ec2-user/ec2-masterclass-sample-app.jar
+          Restart=on-failure
+        
+          [Install]
+          WantedBy=multi-user.target
+          EOF'
+        
+          # apply across reboots
+          sudo systemctl enable ec2sampleapp.service # enable on boot
+          sudo systemctl start ec2sampleapp.service  # start now
+  MySecondInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-00068cd7555f543d5
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref AppSecurityGroup
+        - !Ref ServerSecurityGroup
+      UserData:
+        "Fn::Base64": !Sub |
+          #!/bin/bash
+
+        
+          # upgrade machine
+          sudo yum update -y
+        
+          # install java 8 jdk
+          sudo yum install -y java-1.8.0-openjdk-devel
+        
+          # set java jdk 8 as default
+          sudo /usr/sbin/alternatives --config java
+          sudo /usr/sbin/alternatives --config javac
+        
+          # verify java 8 is the default
+          java -version
+        
+          # Download app
+          cd /home/ec2-user
+          wget https://github.com/simplesteph/ec2-masterclass-sampleapp/releases/download/v1.0/ec2-masterclass-sample-app.jar
+        
+          # Test the app
+          java -Xmx700m -jar ec2-masterclass-sample-app.jar
+        
+          # System D type of Configuration for Linux 2
+          sudo bash -c 'cat << \EOF > /etc/systemd/system/ec2sampleapp.service
+          [Unit]
+          Description=EC2 Sample App
+          After=network.target
+        
+          [Service]
+          ExecStart=/usr/bin/java -Xmx700m -jar /home/ec2-user/ec2-masterclass-sample-app.jar
+          Restart=on-failure
+        
+          [Install]
+          WantedBy=multi-user.target
+          EOF'
+        
+          # apply across reboots
+          sudo systemctl enable ec2sampleapp.service # enable on boot
+          sudo systemctl start ec2sampleapp.service  # start now
+
+
+  # Load Balancer
+  MyLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties: 
+      AvailabilityZones: 
+        - !Ref AZ1
+        - !Ref AZ2
+      CrossZone: True 
+      HealthCheck: 
+        Target: HTTP:4567/
+        HealthyThreshold: '5'
+        UnhealthyThreshold: '2'
+        Interval: '10'
+        Timeout: '5'
+      Instances: 
+        - !Ref MyInstance
+        - !Ref MySecondInstance
+      Listeners: 
+        - InstancePort: 4567
+          InstanceProtocol: HTTP
+          LoadBalancerPort: 80
+          Protocol: HTTP
+      LoadBalancerName: Java-app-CLB
+      SecurityGroups: 
+        - !GetAtt AppSecurityGroup.GroupId
+        - !GetAtt ServerSecurityGroup.GroupId
+
+  # our EC2 security group
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      GroupName: App-port-sg
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        FromPort: 4567
+        IpProtocol: tcp
+        ToPort: 4567
+
+  # our second EC2 security group
+  ServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: allow connections from specified CIDR ranges
+      GroupName: CLB-Group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 192.168.1.1/32
+
+
+        

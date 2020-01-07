@@ -16,7 +16,7 @@ func main() {
 	// ask user for bucket option they would like
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println(`Please enter option: cb(create bucket) | cbv(create bucket with versioning) | 
-		dlb(delete bucket) | lstb(list buckets`)
+		dlb(delete bucket) | lstb(list buckets)`)
 	s3Opt, _ = reader.ReadString('\n')
 	// remove new line
 	s3Opt = strings.Replace(s3Opt, "\n", "", -1)
