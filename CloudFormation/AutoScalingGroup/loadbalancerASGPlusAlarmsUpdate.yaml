@@ -1,0 +1,215 @@
+---
+Parameters:
+  # edit security groups. Can view app on instances but not through load balancer
+  Subnet1:
+    Description: Subnet IDs list
+    Type: AWS::EC2::Subnet::Id
+  Subnet2:
+    Description: Subnet IDs list
+    Type: AWS::EC2::Subnet::Id
+  AppVPC:
+    Description: VPC to deploy resources
+    Type: AWS::EC2::VPC::Id
+Resources:
+  # Application Load Balancer - add App-port-sg
+  MyLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Name: Java-app-ALB
+      SecurityGroups:
+        - !Ref LBAccessGroup
+        - !Ref ALBSecurityGroup
+        # - !Ref AppSecurityGroup
+        # - !GetAtt LBAccessGroup.GroupId
+        # - !GetAtt ALBSecurityGroup.GroupId
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      Type: application
+
+  # working listener, target group
+  JavaAppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref AppVPC
+      Port: 4567
+      Protocol: HTTP
+      Matcher:
+        HttpCode: 200
+        # HttpCode: 200-302
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /health
+      #      HealthCheckPath: !Ref pPath
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+
+  rHttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref JavaAppTargetGroup
+      LoadBalancerArn: !Ref MyLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # App ASG
+  JavaAppASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: Java-app-asg
+      TargetGroupARNs:
+        - !Ref JavaAppTargetGroup
+      VPCZoneIdentifier:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      LaunchConfigurationName: !Ref AppLaunchConfig
+      MinSize: 2
+      MaxSize: 2
+      DesiredCapacity: 2
+
+  # Java App Launch Configuration
+  AppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: ami-00068cd7555f543d5
+      InstanceType: t2.micro
+      # KeyName: String
+      LaunchConfigurationName: Java-app-launch-config
+      SecurityGroups:
+        - !Ref AppSecurityGroup
+        # - !Ref ALBSecurityGroup
+      UserData:
+        "Fn::Base64": !Sub |
+          #!/bin/bash
+
+
+          # upgrade machine
+          sudo yum update -y
+
+          # install java 8 jdk
+          sudo yum install -y java-1.8.0-openjdk-devel
+
+          # set java jdk 8 as default
+          sudo /usr/sbin/alternatives --config java
+          sudo /usr/sbin/alternatives --config javac
+
+          # verify java 8 is the default
+          java -version
+
+          # Download app
+          cd /home/ec2-user
+          wget https://github.com/simplesteph/ec2-masterclass-sampleapp/releases/download/v1.0/ec2-masterclass-sample-app.jar
+
+          # Test the app
+          java -Xmx700m -jar ec2-masterclass-sample-app.jar
+
+          # System D type of Configuration for Linux 2
+          sudo bash -c 'cat << \EOF > /etc/systemd/system/ec2sampleapp.service
+          [Unit]
+          Description=EC2 Sample App
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/java -Xmx700m -jar /home/ec2-user/ec2-masterclass-sample-app.jar
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF'
+
+          # apply across reboots
+          sudo systemctl enable ec2sampleapp.service # enable on boot
+          sudo systemctl start ec2sampleapp.service  # start now
+
+  # App security group
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      GroupName: App-port-sg
+      SecurityGroupIngress:
+      VpcId: !Ref AppVPC
+
+  # our second EC2 security group
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: open HTTP for load balancer
+      GroupName: CLB-Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref AppVPC
+
+  # Group to allows ALB to contact
+  LBAccessGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow ALB to communicate with instances
+      GroupName: ALB to instances
+      VpcId: !Ref AppVPC
+
+  # Ingress for app asg
+  AppAllowLBAccessGroup:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow lb group access to app
+      FromPort: 4567
+      GroupId: !Ref AppSecurityGroup
+      IpProtocol: tcp
+      SourceSecurityGroupId: !GetAtt LBAccessGroup.GroupId
+      ToPort: 4567
+
+
+  
+  # Scale Out Alarm
+  rCPUScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+#      AlarmName: CPU utilization greater than 60%
+      AlarmDescription: Alarm if cpu utilization greater than 90% of reserved cpu
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Maximum
+      Period: "60"
+      EvaluationPeriods: "3"
+      Threshold: "60"
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref rServiceScaleOutPolicy
+  # Scale In Alarm 
+  rCPUScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+#      AlarmName: CPU utilization less than 60%
+      AlarmDescription: Alarm if cpu utilization greater than 70% of reserved cpu
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Maximum
+      Period: "60"
+      EvaluationPeriods: "10"
+      Threshold: "60"
+      ComparisonOperator: LessThanThreshold
+      AlarmActions:
+        - !Ref rServiceScaleInPolicy
+  # Scale out policy
+  rServiceScaleOutPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties: 
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref JavaAppASG
+      Cooldown: 1800
+      ScalingAdjustment: '1'
+  # scale in policy 
+  rServiceScaleInPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties: 
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref JavaAppASG
+      Cooldown: 1800
+      ScalingAdjustment: '-1'
